@@ -1,5 +1,5 @@
 blueprint:
-  name: Controller - EnOcean PTM 215Z FoH switch
+  name: Z2M - EnOcean PTM 215Z FoH switch
   description: Controller automation for executing actions triggered by EnOcean PTM 215Z FoH (Friends of Hue) switch. 
     Make sure that 'Elapsed' is enabled in the z2m advanced settings.
   domain: automation
@@ -184,7 +184,13 @@ action:
         milliseconds: !input hold_delay
     - choose:
       - conditions: '{{ trigger.payload_json.action == "press_1" }}'
-        sequence: !input button_1_held
+        sequence: 
+        - action: mqtt.publish
+          data:
+            topic: '{{ base_topic ~ ''/'' ~ controller ~ ''/set''}}'
+            payload: "{\"brightness_move_onoff\": {{ dim_speed_pos }}}"
+            qos: 0
+            retain: false
       - conditions: '{{ trigger.payload_json.action == "press_2" }}'
         sequence: !input button_2_held
       - conditions: '{{ trigger.payload_json.action == "press_3" }}'
