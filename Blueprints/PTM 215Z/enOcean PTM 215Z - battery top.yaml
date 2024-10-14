@@ -1,0 +1,214 @@
+blueprint:
+  name: Controller - EnOcean PTM 215Z FoH switch
+  description: Controller automation for executing actions triggered by EnOcean PTM 215Z FoH (Friends of Hue) switch. 
+    Make sure that 'Elapsed' is enabled in the z2m advanced settings.
+  domain: automation
+  input:
+    controller:
+      name: (Zigbee2MQTT) Controller Name
+      description: The name of the controller as defined in z2m (e.g. Livingroom Switch or z2m group)
+      default: ''
+    base_topic:
+      name: (Zigbee2MQTT) Base mqtt topic
+      description: The base topic as configured in z2m
+      default: zigbee2mqtt
+    hold_delay:
+      name: Hold delay
+      description: If the button has been held more than this time, the held action will be triggered.
+      default: 500
+      selector:
+        number:
+          min: 100.0
+          max: 1000.0
+          unit_of_measurement: milliseconds
+          mode: box
+          step: 10.0
+    dim_speed:
+      name: Dimming speed
+      description: The speed of the dimming effect.
+      default: 50
+      selector:
+        number:
+          min: 1
+          max: 500
+          unit_of_measurement: units per second
+          step: 1
+    button_1_pressed:
+      name: Button 1 Pressed
+      description: Action to run, when button 1 is pressed.
+      default: []
+      selector:
+        action: {}
+    button_1_held:
+      name: Button 1 Held
+      description: Action to run, when the button 1 is held.
+      default: []
+      selector:
+        action: {}
+    button_1_released:
+      name: Button 1 released
+      description: Action to run, when the button 1 is released after long press.
+      default: []
+      selector:
+        action: {}
+    button_2_pressed:
+      name: Button 2 Pressed
+      description: Action to run, when the button 2 pressed.
+      default: []
+      selector:
+        action: {}
+    button_2_held:
+      name: Button 2 Held
+      description: Action to run, when the button 2 is held.
+      default: []
+      selector:
+        action: {}
+    button_2_released:
+      name: Button 2 released
+      description: Action to run, when the button 2 is released after long press.
+      default: []
+      selector:
+        action: {}
+    button_3_pressed:
+      name: Button 3 Pressed
+      description: Action to run, when the button 3 is pressed.
+      default: []
+      selector:
+        action: {}
+    button_3_held:
+      name: Button 3 Held
+      description: Action to run, when the button 3 is held.
+      default: []
+      selector:
+        action: {}
+    button_3_released:
+      name: Button 3 released
+      description: Action to run, when the button 3 is released after long press.
+      default: []
+      selector:
+        action: {}
+    button_4_pressed:
+      name: Button 4 Pressed
+      description: Action to run, when the button 4 is pressed.
+      default: []
+      selector:
+        action: {}
+    button_4_held:
+      name: Button 4 Held
+      description: Action to run, when the button 4 is held.
+      default: []
+      selector:
+        action: {}
+    button_4_released:
+      name: Button 4 released
+      description: Action to run, when the button 4 is released after long press.
+      default: []
+      selector:
+        action: {}
+    button_1_and_3_pressed:
+      name: Button 1 and 3 Pressed
+      description: Action to run, when buttons 1 and 3 are pressed.
+      default: []
+      selector:
+        action: {}
+    button_1_and_3_held:
+      name: Button 1 and 3 Held
+      description: Action to run, when buttons 1 and 3 are held.
+      default: []
+      selector:
+        action: {}
+    button_1_and_3_released:
+      name: Button 1 and 3 released
+      description: Action to run, when buttons 1 and 3 are released after long press.
+      default: []
+      selector:
+        action: {}
+    button_2_and_4_pressed:
+      name: Button 2 and 4 Pressed
+      description: Action to run, when buttons 2 and 4 are pressed.
+      default: []
+      selector:
+        action: {}
+    button_2_and_4_held:
+      name: Button 2 and 4 Held
+      description: Action to run, when buttons 2 and 4 are held.
+      default: []
+      selector:
+        action: {}
+    button_2_and_4_released:
+      name: Button 2 and 4 released
+      description: Action to run, when buttons 2 and 4 are released after long press.
+      default: []
+      selector:
+        action: {}
+mode: restart
+max_exceeded: silent
+variables:
+  hold_delay: !input hold_delay
+  dim_speed_pos: !input 'dim_speed'
+  dim_speed_neg: '{{ dim_speed_pos | int * -1 }}'
+trigger_variables:
+  base_topic: !input base_topic
+  controller: !input controller
+trigger:
+- platform: mqtt
+  topic: '{{ base_topic ~ ''/'' ~ controller }}'
+condition:
+- condition: template
+  value_template: "{{\n  ('release_' in trigger.payload_json.action and trigger.payload_json.elapsed
+    is defined)\n  or 'press_' in trigger.payload_json.action\n}}\n"
+action:
+- variables:
+    controller: !input controller
+    dim_speed_pos: !input dim_speed
+    dim_speed_neg: !input dim_speed_neg
+- choose:
+  - conditions: '{{ "release_" in trigger.payload_json.action and trigger.payload_json.elapsed
+      | int < hold_delay }}'
+    sequence:
+    - choose:
+      - conditions: '{{ trigger.payload_json.action == "release_1" }}'
+        sequence: !input button_1_pressed
+      - conditions: '{{ trigger.payload_json.action == "release_2" }}'
+        sequence: !input button_2_pressed
+      - conditions: '{{ trigger.payload_json.action == "release_3" }}'
+        sequence: !input button_3_pressed
+      - conditions: '{{ trigger.payload_json.action == "release_4" }}'
+        sequence: !input button_4_pressed
+      - conditions: '{{ trigger.payload_json.action == "release_1_and_3" }}'
+        sequence: !input button_1_and_3_pressed
+      - conditions: '{{ trigger.payload_json.action == "release_2_and_4" }}'
+        sequence: !input button_2_and_4_pressed
+  - conditions: '{{ "press_" | string in trigger.payload_json.action }}'
+    sequence:
+    - delay:
+        milliseconds: !input hold_delay
+    - choose:
+      - conditions: '{{ trigger.payload_json.action == "press_1" }}'
+        sequence: !input button_1_held
+      - conditions: '{{ trigger.payload_json.action == "press_2" }}'
+        sequence: !input button_2_held
+      - conditions: '{{ trigger.payload_json.action == "press_3" }}'
+        sequence: !input button_3_held
+      - conditions: '{{ trigger.payload_json.action == "press_4" }}'
+        sequence: !input button_4_held
+      - conditions: '{{ trigger.payload_json.action == "press_1_and_3" }}'
+        sequence: !input button_1_and_3_held
+      - conditions: '{{ trigger.payload_json.action == "press_2_and_4" }}'
+        sequence: !input button_2_and_4_held
+  - conditions: '{{ "release_" in trigger.payload_json.action and trigger.payload_json.elapsed
+      | int > hold_delay }}'
+    sequence:
+    - choose:
+      - conditions: '{{ trigger.payload_json.action == "release_1" }}'
+        sequence: !input button_1_released
+      - conditions: '{{ trigger.payload_json.action == "release_2" }}'
+        sequence: !input button_2_released
+      - conditions: '{{ trigger.payload_json.action == "release_3" }}'
+        sequence: !input button_3_released
+      - conditions: '{{ trigger.payload_json.action == "release_4" }}'
+        sequence: !input button_4_released
+      - conditions: '{{ trigger.payload_json.action == "release_1_and_3" }}'
+        sequence: !input button_1_and_3_released
+      - conditions: '{{ trigger.payload_json.action == "release_2_and_4" }}'
+        sequence: !input button_2_and_4_released
