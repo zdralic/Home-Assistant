@@ -145,8 +145,7 @@ mode: restart
 max_exceeded: silent
 variables:
   hold_delay: !input hold_delay
-  dim_speed_pos: !input 'dim_speed'
-  dim_speed_neg: '{{ dim_speed_pos | int * -1 }}'
+  dim_speed: !input dim_speed
 trigger_variables:
   base_topic: !input base_topic
   controller: !input controller
@@ -161,7 +160,7 @@ action:
 - variables:
     controller: !input controller
     dim_speed_pos: !input dim_speed
-    dim_speed_neg: !input dim_speed_neg
+    dim_speed_neg: !input '{{ dim_speed_pos | int * -1 }}'
 - choose:
   - conditions: '{{ "release_" in trigger.payload_json.action and trigger.payload_json.elapsed
       | int < hold_delay }}'
