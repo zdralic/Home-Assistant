@@ -21,7 +21,6 @@ blueprint:
           min: 100.0
           max: 1000.0
           unit_of_measurement: milliseconds
-          mode: box
           step: 10.0
     dim_speed:
       name: Dimming speed
