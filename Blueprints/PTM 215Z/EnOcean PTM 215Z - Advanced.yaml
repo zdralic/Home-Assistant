@@ -6,11 +6,11 @@ blueprint:
   input:
     controller:
       name: (Zigbee2MQTT) Controller Name
-      description: The name of the controller as defined in z2m (e.g. Livingroom Switch or z2m group)
+      description: The name of the controller or group as defined in z2m (e.g. Livingroom Switch or Livingroom Group).
       default: ''
     base_topic:
       name: (Zigbee2MQTT) Base mqtt topic
-      description: The base topic as configured in z2m
+      description: The base topic as configured in z2m.
       default: zigbee2mqtt
     hold_delay:
       name: Hold delay
@@ -22,6 +22,16 @@ blueprint:
           max: 1000.0
           unit_of_measurement: milliseconds
           step: 10.0
+    dim_speed:
+      name: Dimming speed
+      description: The speed of the dimming effect.
+      default: 50
+      selector:
+        number:
+          min: 1
+          max: 500
+          unit_of_measurement: units per second
+          step: 1
     button_1_pressed:
       name: Button 1 Pressed
       description: Action to run, when button 1 is pressed.
@@ -120,13 +130,13 @@ blueprint:
         action: {}
     button_2_and_4_held:
       name: Button 2 and 4 Held
-      description: Action to run, when buttons 2 and 4 are is held.
+      description: Action to run, when buttons 2 and 4 are held.
       default: []
       selector:
         action: {}
     button_2_and_4_released:
       name: Button 2 and 4 released
-      description: Action to run, when buttons 2 and 4 are is released after long
+      description: Action to run, when buttons 2 and 4 are released after long
         press.
       default: []
       selector:
