@@ -1,5 +1,5 @@
 blueprint:
-  name: Z2M - EnOcean PTM 215Z FoH switch
+  name: Z2M - EnOcean PTM 215Z FoH switch - Advanced
   description: Controller automation for executing actions triggered by EnOcean PTM 215Z FoH (Friends of Hue) switch. 
     Make sure that 'Elapsed' is enabled in the z2m advanced settings.
   domain: automation
@@ -22,16 +22,6 @@ blueprint:
           max: 1000.0
           unit_of_measurement: milliseconds
           step: 10.0
-    dim_speed:
-      name: Dimming speed
-      description: The speed of the dimming effect.
-      default: 50
-      selector:
-        number:
-          min: 1
-          max: 500
-          unit_of_measurement: units per second
-          step: 1
     button_1_pressed:
       name: Button 1 Pressed
       description: Action to run, when button 1 is pressed.
@@ -130,13 +120,14 @@ blueprint:
         action: {}
     button_2_and_4_held:
       name: Button 2 and 4 Held
-      description: Action to run, when buttons 2 and 4 are held.
+      description: Action to run, when buttons 2 and 4 are is held.
       default: []
       selector:
         action: {}
     button_2_and_4_released:
       name: Button 2 and 4 released
-      description: Action to run, when buttons 2 and 4 are released after long press.
+      description: Action to run, when buttons 2 and 4 are is released after long
+        press.
       default: []
       selector:
         action: {}
@@ -144,7 +135,6 @@ mode: restart
 max_exceeded: silent
 variables:
   hold_delay: !input hold_delay
-  dim_speed: !input dim_speed
 trigger_variables:
   base_topic: !input base_topic
   controller: !input controller
@@ -158,8 +148,6 @@ condition:
 action:
 - variables:
     controller: !input controller
-    dim_speed_pos: !input dim_speed
-    dim_speed_neg: '{{ dim_speed_pos | int * -1 }}'
 - choose:
   - conditions: '{{ "release_" in trigger.payload_json.action and trigger.payload_json.elapsed
       | int < hold_delay }}'
@@ -183,13 +171,7 @@ action:
         milliseconds: !input hold_delay
     - choose:
       - conditions: '{{ trigger.payload_json.action == "press_1" }}'
-        sequence: 
-        - action: mqtt.publish
-          data:
-            topic: '{{ base_topic ~ ''/'' ~ controller ~ ''/set''}}'
-            payload: "{\"brightness_move_onoff\": {{ dim_speed_pos }}}"
-            qos: 0
-            retain: false
+        sequence: !input button_1_held
       - conditions: '{{ trigger.payload_json.action == "press_2" }}'
         sequence: !input button_2_held
       - conditions: '{{ trigger.payload_json.action == "press_3" }}'
