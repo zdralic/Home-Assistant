@@ -2,6 +2,7 @@ blueprint:
   name: Z2M - EnOcean PTM 215Z FoH switch - Advanced
   description: Controller automation for executing actions triggered by EnOcean PTM 215Z FoH (Friends of Hue) switch. 
     Make sure that 'Elapsed' is enabled in the z2m advanced settings.
+  domain: automation
 use_blueprint:
   path: zdralic/EnOcean PTM 215Z - Advanced.yaml
   input:
